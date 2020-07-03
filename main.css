@@ -7,8 +7,38 @@ html, body {
 html, body, canvas {
     margin: 0;
     padding: 0;
+    touch-action: none;
+}
+
+body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+img {
+    position: absolute;
+    display: block;
+    -webkit-user-drag: none;
+}
+
+.figure {
+    width: 100px;
+}
+
+.undo {
+    width: 50px;
 }
 
 canvas {
     display: block;
+}
+
+#debug {
+    position: absolute;
+    width: 80%;
+    height: 80px;
+    margin: 5px 10%;
+    overflow: hidden;
+    background-color: #eee;
 }
