@@ -79,12 +79,11 @@ var state = {
                 state.dragStartPositions[this.id].y = e.pageY;
                 return;
             }
-            var touchTargets = [].slice.call(e.touches).map(function(touch) {
-                return touch.target;
-            });
+            var touchTargets = [].slice.call(e.touches)
+                .map(function(touch) { return touch && touch.target; });
             state.touchIndices[this.id] = touchTargets.indexOf(this);
             if (state.touchIndices[this.id] == -1) {
-                alert('Unexpected error: Don\'t know what element you touched.');
+                console.error('Unexpected error: Don\'t know what element you touched.');
                 return;
             }
             var touch = e.touches[state.touchIndices[this.id]];
