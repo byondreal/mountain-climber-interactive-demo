@@ -131,6 +131,7 @@ var state = {
 
     function drawDrawing() {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.setLineDash([]);
         ctx.strokeStyle = '#ef6b3a';
         ctx.lineJoin = 'round';
         ctx.lineWidth = 5;
@@ -146,6 +147,16 @@ var state = {
             ctx.closePath();
             ctx.stroke();
         }
+    }
+
+    function drawConnectingLine() {
+        ctx.beginPath();
+        ctx.setLineDash([5, 10]);
+        var from = state.positions.leftFigure;
+        var to = state.positions.rightFigure;
+        ctx.moveTo(from.x + 50, from.y + 55);
+        ctx.lineTo(to.x + 50, to.y + 55);
+        ctx.stroke();
     }
 
     function positionFigures() {
@@ -165,6 +176,7 @@ var state = {
 
     function draw() {
         drawDrawing();
+        drawConnectingLine();
         positionFigures();
         updateDebugText();
         window.requestAnimationFrame(draw);
