@@ -29,6 +29,9 @@ var state = {
         var y = e.pageY - this.offsetTop;
         state.points.push({ x, y, isDrag: false });
         state.isDrawing = true;
+        if (navigator.userAgent.match(/Android/i)) {
+            e.preventDefault();
+        }
     };
 
     canvas.ontouchmove = canvas.onmousemove = function(e) {
@@ -178,7 +181,7 @@ var state = {
         drawDrawing();
         drawConnectingLine();
         positionFigures();
-        updateDebugText();
+        // updateDebugText();
         window.requestAnimationFrame(draw);
     }
     draw();
