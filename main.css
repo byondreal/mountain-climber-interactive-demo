@@ -24,10 +24,25 @@ img {
 
 .figure {
     width: 100px;
+    cursor: pointer;
 }
 
-.undo {
+.button {
     width: 50px;
+    cursor: pointer;
+    margin: 5px;
+}
+.button:active {
+    transform: scale(0.8);
+    opacity: 0.8;
+}
+
+#undoButton {
+    right: 60px;
+}
+
+#trashButton {
+    right: 0;
 }
 
 canvas {

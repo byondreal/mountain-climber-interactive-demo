@@ -1,9 +1,5 @@
 document.body.style.display = 'block';
 
-document.ontouchmove = function(e){
-    e.preventDefault();
-};
-
 var state = {
     points: [],
     isDrawing: false,
@@ -12,8 +8,10 @@ var state = {
     positions: { leftFigure: { x: 0, y: 0 }, rightFigure: { x: 0, y: 0 } },
     dragStartPositions: { leftFigure: { x: 0, y: 0 }, rightFigure: { x: 0, y: 0 } },
     dragStartStyles: { leftFigure: { left: 0, top: 0 }, rightFigure: { left: 0, top: 0 } },
+    didClearAtleastOnce: false,
 };
 
+// canvas drawing
 (function() {
     var canvas = document.getElementById('board');
 
@@ -51,6 +49,7 @@ var state = {
 
 }());
 
+// stick figure dragging
 (function() {
     var leftFigure = document.getElementById('leftFigure');
     var rightFigure = document.getElementById('rightFigure');
@@ -124,6 +123,7 @@ var state = {
 
 }());
 
+// update ui
 (function() {
     var canvas = document.getElementById('board');
     var ctx = canvas.getContext('2d');
@@ -186,4 +186,37 @@ var state = {
     }
     draw();
 
+}());
+
+// load with mountain shape
+(function() {
+    var mountain = [[255,477],[310,338],[385,293],[460,376],[547,276],[588,127],[663,188],[725,380],[845,287],[895,187],[965,224],[1011,489]];
+    state.points = mountain.map(function(xy, i) {
+        return { x: xy[0], y: xy[1], isDrag: i == 0 ? false : true };
+    });
+}());
+
+// undo feature, remove the last thing, except mountain
+(function() {
+    var undoButton = document.getElementById('undoButton');
+    undoButton.ontouchstart = undoButton.onmousedown = function(e) {
+        var lastLineStartIndex = state.points.length;
+        var minLastLineStartIndex = state.didClearAtleastOnce ? 0 : 1;
+        for (var i = state.points.length - 1; i >= minLastLineStartIndex; i--) {
+            if (!state.points[i].isDrag) {
+                lastLineStartIndex = i;
+                break;
+            }
+        }
+        state.points = state.points.slice(0, lastLineStartIndex);
+    };
+}());
+
+// trash button to clear the entire drawing, including mountain
+(function() {
+    var trashButton = document.getElementById('trashButton');
+    trashButton.ontouchstart = trashButton.onmousedown = function(e) {
+        state.points = [];
+        state.didClearAtleastOnce = true;
+    };
 }());
