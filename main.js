@@ -8,6 +8,10 @@ var state = {
     points: [],
     isDrawing: false,
     isDragging: { leftFigure: false, rightFigure: false },
+    touchIndices: { leftFigure: -1, rightFigure: -1 },
+    positions: { leftFigure: { x: 0, y: 0 }, rightFigure: { x: 0, y: 0 } },
+    dragStartPositions: { leftFigure: { x: 0, y: 0 }, rightFigure: { x: 0, y: 0 } },
+    dragStartStyles: { leftFigure: { left: 0, top: 0 }, rightFigure: { left: 0, top: 0 } },
 };
 
 (function() {
@@ -34,9 +38,12 @@ var state = {
         state.points.push({ x, y, isDrag: true });
     };
 
-    canvas.ontouchend = canvas.ontouchcancel =
-    canvas.onmouseup = canvas.onmouseleave = function(e) {
+    canvas.ontouchend = canvas.onmouseup = function(e) {
         state.isDrawing = false;
+    };
+
+    canvas.ontouchcancel = canvas.onmouseleave = function(e) {
+        // state.isDrawing = false;
     };
 
 }());
@@ -50,37 +57,37 @@ var state = {
 
     window.addEventListener('resize', reposition, false);
     function reposition() {
-        leftFigure.style.left = (window.innerWidth / 3 - 50) + 'px';
-        rightFigure.style.left = (window.innerWidth * 2 / 3 - 50) + 'px';
-        leftFigure.style.top = (window.innerHeight - 120) + 'px';
-        rightFigure.style.top = (window.innerHeight - 120) + 'px';
+        state.positions.leftFigure.x = window.innerWidth / 3 - 50;
+        state.positions.leftFigure.y = window.innerHeight - 120;
+        state.positions.rightFigure.x = window.innerWidth * 2 / 3 - 50;
+        state.positions.rightFigure.y = window.innerHeight - 120;
     }
     reposition();
 
     leftFigure.onmousedown = leftFigure.ontouchstart =
     rightFigure.onmousedown = rightFigure.ontouchstart =
         function(e) {
-            this.origStyleLeft = +this.style.left.slice(0, -2);
-            this.origStyleTop = +this.style.top.slice(0, -2);
+            state.dragStartStyles[this.id].left = +this.style.left.slice(0, -2);
+            state.dragStartStyles[this.id].top = +this.style.top.slice(0, -2);
             state.isDragging[this.id] = true;
+
             if (!e.touches) {
-                this.touchIndex = -1;
-                this.origX = e.pageX;
-                this.origY = e.pageY;
+                state.touchIndices[this.id] = -1;
+                state.dragStartPositions[this.id].x = e.pageX;
+                state.dragStartPositions[this.id].y = e.pageY;
                 return;
             }
             var touchTargets = [].slice.call(e.touches).map(function(touch) {
                 return touch.target;
             });
-            this.touchIndex = touchTargets.indexOf(this);
-            updateDebugText(e);
-            if (this.touchIndex == -1) {
-                alert('wut');
+            state.touchIndices[this.id] = touchTargets.indexOf(this);
+            if (state.touchIndices[this.id] == -1) {
+                alert('Unexpected error: Don\'t know what element you touched.');
                 return;
             }
-            var touch = e.touches[this.touchIndex];
-            this.origX = touch.pageX;
-            this.origY = touch.pageY;
+            var touch = e.touches[state.touchIndices[this.id]];
+            state.dragStartPositions[this.id].x = touch.pageX;
+            state.dragStartPositions[this.id].y = touch.pageY;
         };
 
     leftFigure.onmousemove = leftFigure.ontouchmove =
@@ -88,51 +95,45 @@ var state = {
         function(e) {
             if (!state.isDragging[this.id]) return;
             if (!e.touches) {
-                var x = e.pageX - this.origX;
-                var y = e.pageY - this.origY;
-                this.style.left = (this.origStyleLeft + x).toFixed(2) + 'px';
-                this.style.top = (this.origStyleTop + y).toFixed(2) + 'px';
+                var x = e.pageX - state.dragStartPositions[this.id].x;
+                var y = e.pageY - state.dragStartPositions[this.id].y;
+                state.positions[this.id].x = state.dragStartStyles[this.id].left + x;
+                state.positions[this.id].y = state.dragStartStyles[this.id].top + y;
                 return;
             }
-            updateDebugText(e);
-            if (this.touchIndex == -1) return;
-            var touch = e.touches[this.touchIndex];
+            if (state.touchIndices[this.id] == -1) return;
+            var touch = e.touches[state.touchIndices[this.id]];
             if (!touch) return;
-            var x = touch.pageX - this.origX;
-            var y = touch.pageY - this.origY;
-            this.style.left = (this.origStyleLeft + x).toFixed(2) + 'px';
-            this.style.top = (this.origStyleTop + y).toFixed(2) + 'px';
+            var x = touch.pageX - state.dragStartPositions[this.id].x;
+            var y = touch.pageY - state.dragStartPositions[this.id].y;
+            state.positions[this.id].x = state.dragStartStyles[this.id].left + x;
+            state.positions[this.id].y = state.dragStartStyles[this.id].top + y;
         };
 
     leftFigure.onmouseup = leftFigure.onmouseleave = leftFigure.ontouchend = leftFigure.ontouchcancel =
     rightFigure.onmouseup = rightFigure.ontouchend = rightFigure.ontouchend = rightFigure.ontouchcancel =
         function(e) {
-            if (e.touches && e.touches.length) return;
-            debugEl.innerText = '';
             state.isDragging[this.id] = false;
+            if (!e.touches || !e.touches.length) {
+                debugEl.innerText = '';
+            }
         };
 
-    function updateDebugText(e) {
-        debugEl.innerText = [
-            [].slice.call(e.touches).map(function(touch) {
-                return `(${touch.pageX.toFixed(2)}, ${touch.pageY.toFixed(2)})`;
-            }).join(' | '),
-            `(${leftFigure.style.left}, ${leftFigure.style.top}) | (${rightFigure.style.left}, ${rightFigure.style.top})`,
-            `(${leftFigure.origStyleLeft}, ${leftFigure.origStyleTop}) | (${rightFigure.origStyleLeft}, ${rightFigure.origStyleTop})`,
-        ].join('\n');
-    }
 }());
 
 (function() {
     var canvas = document.getElementById('board');
     var ctx = canvas.getContext('2d');
 
-    function draw() {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.strokeStyle = "#ef6b3a";
-        ctx.lineJoin = "round";
-        ctx.lineWidth = 5;
+    var leftFigure = document.getElementById('leftFigure');
+    var rightFigure = document.getElementById('rightFigure');
+    var debugEl = document.getElementById('debug');
 
+    function drawDrawing() {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.strokeStyle = '#ef6b3a';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 5;
         for (var i = 0; i < state.points.length; i++) {
             var p = state.points[i];
             ctx.beginPath();
@@ -145,8 +146,29 @@ var state = {
             ctx.closePath();
             ctx.stroke();
         }
+    }
 
+    function positionFigures() {
+        if (typeof state.positions.leftFigure.x != 'number') alert(state.positions.leftFigure.x);
+        leftFigure.style.left = state.positions.leftFigure.x.toFixed(2) + 'px';
+        leftFigure.style.top = state.positions.leftFigure.y.toFixed(2) + 'px';
+        rightFigure.style.left = state.positions.rightFigure.x.toFixed(2) + 'px';
+        rightFigure.style.top = state.positions.rightFigure.y.toFixed(2) + 'px';
+    }
+
+    function updateDebugText() {
+        debugEl.innerText = JSON.stringify(state, function(key, value) {
+            if (key == 'points') return 'count: ' + value.length;
+            return value;
+        }, 2);
+    }
+
+    function draw() {
+        drawDrawing();
+        positionFigures();
+        updateDebugText();
         window.requestAnimationFrame(draw);
     }
     draw();
+
 }());

@@ -36,9 +36,12 @@ canvas {
 
 #debug {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 80%;
     height: 80px;
     margin: 5px 10%;
-    overflow: hidden;
-    background-color: #eee;
+    line-height: 0.9;
+    font-size: 10px;
+    pointer-events: none;
 }
