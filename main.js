@@ -12,8 +12,8 @@ var state = {
     didClearAtleastOnce: false,
 };
 var winToRefRatio = window.innerWidth / 1152;
-var mountainBaseNormalizedYOffset = -0.03;
-var mountainSizeScaleRatio = 1.15;
+var mountainBaseNormalizedYOffset = -0.05;
+var mountainSizeScaleRatio = 1.17;
 var figureSizeScaleRatio = 0.8;
 
 // canvas drawing
