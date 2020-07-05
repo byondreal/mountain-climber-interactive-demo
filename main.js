@@ -10,6 +10,8 @@ var state = {
     dragStartStyles: { leftFigure: { left: 0, top: 0 }, rightFigure: { left: 0, top: 0 } },
     didClearAtleastOnce: false,
 };
+var winToRefRatio = window.innerWidth / 1152;
+var figureSizeScaleRatio = 1.2;
 
 // canvas drawing
 (function() {
@@ -55,16 +57,8 @@ var state = {
     var rightFigure = document.getElementById('rightFigure');
     var debugEl = document.getElementById('debug');
 
-    // debugEl.style.display = 'none';
-
-    window.addEventListener('resize', reposition, false);
-    function reposition() {
-        state.positions.leftFigure.x = window.innerWidth / 3 - 50;
-        state.positions.leftFigure.y = window.innerHeight - 120;
-        state.positions.rightFigure.x = window.innerWidth * 2 / 3 - 50;
-        state.positions.rightFigure.y = window.innerHeight - 120;
-    }
-    reposition();
+    leftFigure.style.width = '' + 100 * figureSizeScaleRatio * winToRefRatio + 'px';
+    rightFigure.style.width = '' + 100 * figureSizeScaleRatio * winToRefRatio + 'px';
 
     leftFigure.onmousedown = leftFigure.ontouchstart =
     rightFigure.onmousedown = rightFigure.ontouchstart =
@@ -131,12 +125,14 @@ var state = {
     var rightFigure = document.getElementById('rightFigure');
     var debugEl = document.getElementById('debug');
 
+    // debugEl.style.display = 'none';
+
     function drawDrawing() {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.setLineDash([]);
         ctx.strokeStyle = '#ef6b3a';
         ctx.lineJoin = 'round';
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 5 * winToRefRatio;
         for (var i = 0; i < state.points.length; i++) {
             var p = state.points[i];
             ctx.beginPath();
@@ -156,8 +152,8 @@ var state = {
         ctx.setLineDash([5, 10]);
         var from = state.positions.leftFigure;
         var to = state.positions.rightFigure;
-        ctx.moveTo(from.x + 50 + 10, from.y + 50);
-        ctx.lineTo(to.x + 50 - 5, to.y + 50);
+        ctx.moveTo(from.x + (50 + 10) * figureSizeScaleRatio * winToRefRatio, from.y + 50 * figureSizeScaleRatio * winToRefRatio);
+        ctx.lineTo(to.x + (50 - 5) * figureSizeScaleRatio * winToRefRatio, to.y + 50 * figureSizeScaleRatio * winToRefRatio);
         ctx.stroke();
     }
 
@@ -189,23 +185,31 @@ var state = {
 
 // load with mountain shape
 (function() {
+    var winWidth = window.innerWidth;
+    var winHeight = window.innerHeight;
+
     var mountainPoints = [[205,530],[260,378],[335,333],[410,416],[497,316],[538,167],[613,228],[675,420],[795,327],[845,227],[915,264],[961,530],[1048,530],[115,530]]
     var refWidth = 1152;
     var refHeight = 641;
     var aspectRatio = refHeight / refWidth;
-    var winWidth = window.innerWidth;
-    var winHeight = window.innerHeight;
-    var normalized = mountainPoints.map(function(xy, i) {
-        return [xy[0] / refWidth - 0.5, xy[1] / refHeight - 0.5];
+
+    function convertPoint(xy) {
+        var normalizedX = xy[0] / refWidth - 0.5;
+        var normalizedY = xy[1] / refHeight - 0.5;
+        var x = normalizedX * winWidth + winWidth / 2;
+        var y = normalizedY * winWidth * aspectRatio + winHeight / 2;
+        return {x, y};
+    }
+
+    state.points = mountainPoints.map(convertPoint).map(function(p, i) {
+        return { x: p.x, y: p.y, isDrag: i == 0 ? false : true };
     });
-    var converted = normalized.map(function(normalizedPoint, i) {
-        var x = normalizedPoint[0] * winWidth + winWidth / 2;
-        var y = normalizedPoint[1] * winWidth * aspectRatio + winHeight / 2;
-        return [x, y];
-    });
-    state.points = converted.map(function(xy, i) {
-        return { x: xy[0], y: xy[1], isDrag: i == 0 ? false : true };
-    });
+
+    var figurePositions = {left:[120,420],right:[932,420]};
+    var leftFigurePos = convertPoint(figurePositions.left);
+    state.positions.leftFigure = leftFigurePos;
+    var rightFigurePos = convertPoint(figurePositions.right);
+    state.positions.rightFigure = rightFigurePos;
 }());
 
 // undo feature, remove the last thing, except mountain
