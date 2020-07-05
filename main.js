@@ -158,7 +158,7 @@ var figureSizeScaleRatio = 0.8;
         ctx.beginPath();
         ctx.strokeStyle = '#76d2e9';
         ctx.lineWidth = 4 * winToRefRatio;
-        ctx.setLineDash([5, 10]);
+        ctx.setLineDash([6 * winToRefRatio, 12 * winToRefRatio]);
         var from = state.positions.leftFigure;
         var to = state.positions.rightFigure;
         ctx.moveTo(from.x + (50 + 10) * figureSizeScaleRatio * winToRefRatio, from.y + 50 * figureSizeScaleRatio * winToRefRatio);
@@ -206,7 +206,7 @@ var figureSizeScaleRatio = 0.8;
     var winWidth = window.innerWidth;
     var winHeight = window.innerHeight;
 
-    var mountainPoints = [[205,530],[260,378],[335,333],[410,416],[497,316],[538,167],[613,228],[675,420],[795,327],[845,227],[915,264],[961,530],[1048,530],[115,530]]
+    var mountainPoints = [[205,530],[260,378],[335,333],[410,416],[497,316],[538,167],[613,228],[675,420],[795,327],[845,227],[915,304],[961,530],[1048,530],[115,530]]
     var refWidth = 1152;
     var refHeight = 641;
     var aspectRatio = refHeight / refWidth;
