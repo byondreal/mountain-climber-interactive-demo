@@ -259,7 +259,7 @@ var figureSizeScaleRatio = 0.8;
 // draw button to change drawing mode
 (function() {
     var drawButton = document.getElementById('drawButton');
-    drawButton.ontouchstart = drawButton.onmousedown = function(e) {
+    drawButton.onclick = function(e) {
         state.isDrawingEnabled = !state.isDrawingEnabled;
     };
 }());
