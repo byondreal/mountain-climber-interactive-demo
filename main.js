@@ -141,7 +141,7 @@ var figureSizeScaleRatio = 0.8;
     }
 
     function drawMarkings() {
-        drawPoints(state.points, '#76d2e9', 3);
+        drawPoints(state.points, '#76d2e9', 1);
     }
 
     function drawPoints(points, strokeStyle, lineWidth) {
