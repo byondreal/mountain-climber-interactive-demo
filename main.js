@@ -156,8 +156,8 @@ var state = {
         ctx.setLineDash([5, 10]);
         var from = state.positions.leftFigure;
         var to = state.positions.rightFigure;
-        ctx.moveTo(from.x + 50, from.y + 55);
-        ctx.lineTo(to.x + 50, to.y + 55);
+        ctx.moveTo(from.x + 50 + 10, from.y + 50);
+        ctx.lineTo(to.x + 50 - 5, to.y + 50);
         ctx.stroke();
     }
 
