@@ -189,8 +189,21 @@ var state = {
 
 // load with mountain shape
 (function() {
-    var mountain = [[255,477],[310,338],[385,293],[460,376],[547,276],[588,127],[663,188],[725,380],[845,287],[895,187],[965,224],[1011,489]];
-    state.points = mountain.map(function(xy, i) {
+    var mountainPoints = [[205,530],[260,378],[335,333],[410,416],[497,316],[538,167],[613,228],[675,420],[795,327],[845,227],[915,264],[961,530],[1048,530],[115,530]]
+    var refWidth = 1152;
+    var refHeight = 641;
+    var aspectRatio = refHeight / refWidth;
+    var winWidth = window.innerWidth;
+    var winHeight = window.innerHeight;
+    var normalized = mountainPoints.map(function(xy, i) {
+        return [xy[0] / refWidth - 0.5, xy[1] / refHeight - 0.5];
+    });
+    var converted = normalized.map(function(normalizedPoint, i) {
+        var x = normalizedPoint[0] * winWidth + winWidth / 2;
+        var y = normalizedPoint[1] * winWidth * aspectRatio + winHeight / 2;
+        return [x, y];
+    });
+    state.points = converted.map(function(xy, i) {
         return { x: xy[0], y: xy[1], isDrag: i == 0 ? false : true };
     });
 }());
