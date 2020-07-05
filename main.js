@@ -151,6 +151,8 @@ var figureSizeScaleRatio = 1.2;
 
     function drawConnectingLine() {
         ctx.beginPath();
+        ctx.strokeStyle = '#76d2e9';
+        ctx.lineWidth = 2 * winToRefRatio;
         ctx.setLineDash([5, 10]);
         var from = state.positions.leftFigure;
         var to = state.positions.rightFigure;
