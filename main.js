@@ -170,8 +170,8 @@ var figureSizeScaleRatio = 0.8;
         ctx.setLineDash([6 * winToRefRatio, 12 * winToRefRatio]);
         var from = state.positions.leftFigure;
         var to = state.positions.rightFigure;
-        ctx.moveTo(from.x + (50 + 10) * figureSizeScaleRatio * winToRefRatio, from.y + 50 * figureSizeScaleRatio * winToRefRatio);
-        ctx.lineTo(to.x + (50 - 5) * figureSizeScaleRatio * winToRefRatio, to.y + 50 * figureSizeScaleRatio * winToRefRatio);
+        ctx.moveTo(from.x + (50 + 15) * figureSizeScaleRatio * winToRefRatio, from.y + 100 * figureSizeScaleRatio * winToRefRatio);
+        ctx.lineTo(to.x + (50 - 5) * figureSizeScaleRatio * winToRefRatio, to.y + 100 * figureSizeScaleRatio * winToRefRatio);
         ctx.stroke();
     }
 
