@@ -1,6 +1,7 @@
 document.body.style.display = 'block';
 
 var state = {
+    mountainPoints: [],
     points: [],
     isDrawingEnabled: false,
     isDrawing: false,
@@ -9,7 +10,6 @@ var state = {
     positions: { leftFigure: { x: 0, y: 0 }, rightFigure: { x: 0, y: 0 } },
     dragStartPositions: { leftFigure: { x: 0, y: 0 }, rightFigure: { x: 0, y: 0 } },
     dragStartStyles: { leftFigure: { left: 0, top: 0 }, rightFigure: { left: 0, top: 0 } },
-    didClearAtleastOnce: false,
 };
 var winToRefRatio = window.innerWidth / 1152;
 var mountainBaseNormalizedYOffset = -0.05;
@@ -131,20 +131,29 @@ var figureSizeScaleRatio = 0.8;
     var debugEl = document.getElementById('debug');
 
     // debugEl.style.display = 'none';
-
-    function drawDrawing() {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    function clearCanvas() {
         ctx.fillStyle = '#333333';
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
+
+    function drawMountain() {
+        drawPoints(state.mountainPoints, '#6c3f18', 5);
+    }
+
+    function drawMarkings() {
+        drawPoints(state.points, '#76d2e9', 3);
+    }
+
+    function drawPoints(points, strokeStyle, lineWidth) {
         ctx.setLineDash([]);
-        ctx.strokeStyle = '#6c3f18';
+        ctx.strokeStyle = strokeStyle;
         ctx.lineJoin = 'round';
-        ctx.lineWidth = 5 * winToRefRatio;
-        for (var i = 0; i < state.points.length; i++) {
-            var p = state.points[i];
+        ctx.lineWidth = lineWidth * winToRefRatio;
+        for (var i = 0; i < points.length; i++) {
+            var p = points[i];
             ctx.beginPath();
             if (p.isDrag && i) {
-                ctx.moveTo(state.points[i - 1].x, state.points[i - 1].y);
+                ctx.moveTo(points[i - 1].x, points[i - 1].y);
             } else {
                 ctx.moveTo(p.x - 1, p.y);
             }
@@ -190,7 +199,9 @@ var figureSizeScaleRatio = 0.8;
     }
 
     function draw() {
-        drawDrawing();
+        clearCanvas();
+        drawMountain();
+        drawMarkings();
         drawConnectingLine();
         positionFigures();
         updateDrawIcon();
@@ -219,7 +230,7 @@ var figureSizeScaleRatio = 0.8;
         return {x, y};
     }
 
-    state.points = mountainPoints.map(convertPoint).map(function(p, i) {
+    state.mountainPoints = mountainPoints.map(convertPoint).map(function(p, i) {
         return { x: p.x, y: p.y, isDrag: i == 0 ? false : true };
     });
 
@@ -230,13 +241,12 @@ var figureSizeScaleRatio = 0.8;
     state.positions.rightFigure = rightFigurePos;
 }());
 
-// undo feature, remove the last thing, except mountain
+// undo feature, remove the last marking
 (function() {
     var undoButton = document.getElementById('undoButton');
     undoButton.ontouchstart = undoButton.onmousedown = function(e) {
         var lastLineStartIndex = state.points.length;
-        var minLastLineStartIndex = state.didClearAtleastOnce ? 0 : 1;
-        for (var i = state.points.length - 1; i >= minLastLineStartIndex; i--) {
+        for (var i = state.points.length - 1; i >= 0; i--) {
             if (!state.points[i].isDrag) {
                 lastLineStartIndex = i;
                 break;
@@ -251,8 +261,8 @@ var figureSizeScaleRatio = 0.8;
     var trashButton = document.getElementById('trashButton');
     if (!trashButton) return;
     trashButton.ontouchstart = trashButton.onmousedown = function(e) {
+        state.mountainPoints = [];
         state.points = [];
-        state.didClearAtleastOnce = true;
     };
 }());
 
