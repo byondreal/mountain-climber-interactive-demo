@@ -129,8 +129,10 @@ var figureSizeScaleRatio = 1.2;
 
     function drawDrawing() {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.fillStyle = '#333333';
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.setLineDash([]);
-        ctx.strokeStyle = '#ef6b3a';
+        ctx.strokeStyle = '#6c3f18';
         ctx.lineJoin = 'round';
         ctx.lineWidth = 5 * winToRefRatio;
         for (var i = 0; i < state.points.length; i++) {
