@@ -12,7 +12,9 @@ var state = {
     didClearAtleastOnce: false,
 };
 var winToRefRatio = window.innerWidth / 1152;
-var figureSizeScaleRatio = 1.2;
+var mountainBaseNormalizedYOffset = -0.03;
+var mountainSizeScaleRatio = 1.15;
+var figureSizeScaleRatio = 0.8;
 
 // canvas drawing
 (function() {
@@ -48,7 +50,7 @@ var figureSizeScaleRatio = 1.2;
     };
 
     canvas.ontouchcancel = canvas.onmouseleave = function(e) {
-        // state.isDrawing = false;
+        state.isDrawing = false;
     };
 
 }());
@@ -155,7 +157,7 @@ var figureSizeScaleRatio = 1.2;
     function drawConnectingLine() {
         ctx.beginPath();
         ctx.strokeStyle = '#76d2e9';
-        ctx.lineWidth = 2 * winToRefRatio;
+        ctx.lineWidth = 4 * winToRefRatio;
         ctx.setLineDash([5, 10]);
         var from = state.positions.leftFigure;
         var to = state.positions.rightFigure;
@@ -211,9 +213,9 @@ var figureSizeScaleRatio = 1.2;
 
     function convertPoint(xy) {
         var normalizedX = xy[0] / refWidth - 0.5;
-        var normalizedY = xy[1] / refHeight - 0.5;
-        var x = normalizedX * winWidth + winWidth / 2;
-        var y = normalizedY * winWidth * aspectRatio + winHeight / 2;
+        var normalizedY = xy[1] / refHeight - 0.5 + mountainBaseNormalizedYOffset;
+        var x = normalizedX * mountainSizeScaleRatio * winWidth + winWidth / 2;
+        var y = normalizedY * mountainSizeScaleRatio * winWidth * aspectRatio + winHeight / 2;
         return {x, y};
     }
 
@@ -221,7 +223,7 @@ var figureSizeScaleRatio = 1.2;
         return { x: p.x, y: p.y, isDrag: i == 0 ? false : true };
     });
 
-    var figurePositions = {left:[120,420],right:[932,420]};
+    var figurePositions = {left:[135,458],right:[947,458]};
     var leftFigurePos = convertPoint(figurePositions.left);
     state.positions.leftFigure = leftFigurePos;
     var rightFigurePos = convertPoint(figurePositions.right);
