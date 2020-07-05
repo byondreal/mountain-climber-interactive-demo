@@ -2,6 +2,7 @@ document.body.style.display = 'block';
 
 var state = {
     points: [],
+    isDrawingEnabled: false,
     isDrawing: false,
     isDragging: { leftFigure: false, rightFigure: false },
     touchIndices: { leftFigure: -1, rightFigure: -1 },
@@ -25,6 +26,7 @@ var figureSizeScaleRatio = 1.2;
     resizeCanvas();
 
     canvas.ontouchstart = canvas.onmousedown = function(e) {
+        if (!state.isDrawingEnabled) return;
         var x = e.pageX - this.offsetLeft;
         var y = e.pageY - this.offsetTop;
         state.points.push({ x, y, isDrag: false });
@@ -123,6 +125,7 @@ var figureSizeScaleRatio = 1.2;
 
     var leftFigure = document.getElementById('leftFigure');
     var rightFigure = document.getElementById('rightFigure');
+    var drawButton = document.getElementById('drawButton');
     var debugEl = document.getElementById('debug');
 
     // debugEl.style.display = 'none';
@@ -169,6 +172,14 @@ var figureSizeScaleRatio = 1.2;
         rightFigure.style.top = state.positions.rightFigure.y.toFixed(2) + 'px';
     }
 
+    function updateDrawIcon() {
+        if (state.isDrawingEnabled) {
+            drawButton.classList.remove('off');
+        } else {
+            drawButton.classList.add('off');
+        }
+    }
+
     function updateDebugText() {
         debugEl.innerText = JSON.stringify(state, function(key, value) {
             if (key == 'points') return 'count: ' + value.length;
@@ -180,6 +191,7 @@ var figureSizeScaleRatio = 1.2;
         drawDrawing();
         drawConnectingLine();
         positionFigures();
+        updateDrawIcon();
         // updateDebugText();
         window.requestAnimationFrame(draw);
     }
@@ -235,8 +247,17 @@ var figureSizeScaleRatio = 1.2;
 // trash button to clear the entire drawing, including mountain
 (function() {
     var trashButton = document.getElementById('trashButton');
+    if (!trashButton) return;
     trashButton.ontouchstart = trashButton.onmousedown = function(e) {
         state.points = [];
         state.didClearAtleastOnce = true;
+    };
+}());
+
+// draw button to change drawing mode
+(function() {
+    var drawButton = document.getElementById('drawButton');
+    drawButton.ontouchstart = drawButton.onmousedown = function(e) {
+        state.isDrawingEnabled = !state.isDrawingEnabled;
     };
 }());

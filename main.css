@@ -32,6 +32,8 @@ img {
     cursor: pointer;
     padding: 10px;
     margin: 0;
+    border-radius: 35px;
+    transition: all 0.2s ease;
 }
 .button:active {
     transform: scale(0.8);
@@ -39,11 +41,15 @@ img {
 }
 
 #undoButton {
-    right: 60px;
+    right: 70px;
 }
 
-#trashButton {
+#drawButton {
     right: 0;
+    background-color: #666666;
+}
+#drawButton.off {
+    background-color: rgba(0,0,0,0);
 }
 
 canvas {
