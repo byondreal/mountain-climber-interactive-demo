@@ -15,7 +15,7 @@ var winToRefRatio = window.innerWidth / 1152;
 var mountainBaseNormalizedYOffset = -0.05;
 var mountainSizeScaleRatio = 1.17;
 var figureSizeScaleRatio = 0.8;
-var minTouchRadius = 8.0;
+var minTouchRadius = 5.0;
 
 // canvas drawing
 (function() {
@@ -39,9 +39,11 @@ var minTouchRadius = 8.0;
             e.preventDefault();
         }
         if (!e.touches) {
+            if (state.isTouchPlatform) return;
             onDrawStart(e.pageX, e.pageY);
             return;
         }
+        state.isTouchPlatform = true;
         var stylusTouch = [].slice.call(e.touches).find(function(touch) {
             return touch && touch.radiusX < minTouchRadius && touch.radiusY < minTouchRadius;
         });
@@ -56,6 +58,7 @@ var minTouchRadius = 8.0;
     canvas.ontouchmove = canvas.onmousemove = function(e) {
         if (!state.isDrawing) return;
         if (!e.touches) {
+            if (state.isTouchPlatform) return;
             onDrawMove(e.pageX, e.pageY);
             return;
         }
@@ -93,11 +96,13 @@ var minTouchRadius = 8.0;
             state.isDragging[this.id] = true;
 
             if (!e.touches) {
+                if (state.isTouchPlatform) return;
                 state.touchIndices[this.id] = -1;
                 state.dragStartPositions[this.id].x = e.pageX;
                 state.dragStartPositions[this.id].y = e.pageY;
                 return;
             }
+            state.isTouchPlatform = true;
             var touchTargets = [].slice.call(e.touches)
                 .map(function(touch) { return touch && touch.target; });
             state.touchIndices[this.id] = touchTargets.indexOf(this);
@@ -114,7 +119,7 @@ var minTouchRadius = 8.0;
     rightFigure.onmousemove = rightFigure.ontouchmove =
         function(e) {
             if (!state.isDragging[this.id]) return;
-            if (!e.touches) {
+            if (!e.touches && !state.isTouchPlatform) {
                 var x = e.pageX - state.dragStartPositions[this.id].x;
                 var y = e.pageY - state.dragStartPositions[this.id].y;
                 state.positions[this.id].x = state.dragStartStyles[this.id].left + x;
@@ -134,9 +139,6 @@ var minTouchRadius = 8.0;
     rightFigure.onmouseup = rightFigure.ontouchend = rightFigure.ontouchend = rightFigure.ontouchcancel =
         function(e) {
             state.isDragging[this.id] = false;
-            if (!e.touches || !e.touches.length) {
-                debugEl.innerText = '';
-            }
         };
 
 }());
