@@ -15,6 +15,7 @@ var winToRefRatio = window.innerWidth / 1152;
 var mountainBaseNormalizedYOffset = -0.05;
 var mountainSizeScaleRatio = 1.17;
 var figureSizeScaleRatio = 0.8;
+var minTouchRadius = 8.0;
 
 // canvas drawing
 (function() {
@@ -27,22 +28,42 @@ var figureSizeScaleRatio = 0.8;
     }
     resizeCanvas();
 
-    canvas.ontouchstart = canvas.onmousedown = function(e) {
-        if (!state.isDrawingEnabled) return;
-        var x = e.pageX - this.offsetLeft;
-        var y = e.pageY - this.offsetTop;
+    function onDrawStart(x, y) {
         state.points.push({ x, y, isDrag: false });
         state.isDrawing = true;
+    };
+
+    canvas.ontouchstart = canvas.onmousedown = function(e) {
+        if (!state.isDrawingEnabled) return;
         if (navigator.userAgent.match(/Android/i)) {
             e.preventDefault();
         }
-    };
+        if (!e.touches) {
+            onDrawStart(e.pageX, e.pageY);
+            return;
+        }
+        var stylusTouch = [].slice.call(e.touches).find(function(touch) {
+            return touch && touch.radiusX < minTouchRadius && touch.radiusY < minTouchRadius;
+        });
+        if (!stylusTouch) return;
+        onDrawStart(stylusTouch.pageX, stylusTouch.pageY);
+    }
+
+    function onDrawMove(x, y) {
+        state.points.push({ x, y, isDrag: true });
+    }
 
     canvas.ontouchmove = canvas.onmousemove = function(e) {
         if (!state.isDrawing) return;
-        var x = e.pageX - this.offsetLeft;
-        var y = e.pageY - this.offsetTop;
-        state.points.push({ x, y, isDrag: true });
+        if (!e.touches) {
+            onDrawMove(e.pageX, e.pageY);
+            return;
+        }
+        var stylusTouch = [].slice.call(e.touches).find(function(touch) {
+            return touch && touch.radiusX < minTouchRadius && touch.radiusY < minTouchRadius;
+        });
+        if (!stylusTouch) return;
+        onDrawMove(stylusTouch.pageX, stylusTouch.pageY);
     };
 
     canvas.ontouchend = canvas.onmouseup = function(e) {
@@ -244,7 +265,7 @@ var figureSizeScaleRatio = 0.8;
 // undo feature, remove the last marking
 (function() {
     var undoButton = document.getElementById('undoButton');
-    undoButton.ontouchstart = undoButton.onmousedown = function(e) {
+    undoButton.onclick = function(e) {
         var lastLineStartIndex = state.points.length;
         for (var i = state.points.length - 1; i >= 0; i--) {
             if (!state.points[i].isDrag) {
